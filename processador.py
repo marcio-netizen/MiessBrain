@@ -188,6 +188,30 @@ def make_get_custo(promomos_ct, custo_kits_cod, estoque_cod):
     return get_custo
 
 
+# ── Reconstruir tabelas de custo a partir do JSON salvo no Supabase ─────────────
+def rebuild_cost_tables(data: dict):
+    """Reconstrói cost_tables a partir do dict deserializado do Supabase."""
+    estoque_cod        = data['estoque_cod']
+    estoque_disp       = data['estoque_disp']
+    estoque_marca      = data['estoque_marca']
+    estoque_marca_disp = data['estoque_marca_disp']
+    custo_kits_cod     = data['custo_kits_cod']
+    promomos_ct        = {k: [tuple(x) for x in v] for k, v in data['promomos_ct'].items()}
+    promo_brinde       = set(data['promo_brinde'])
+    get_custo          = make_get_custo(promomos_ct, custo_kits_cod, estoque_cod)
+    return {
+        'estoque_cod':        estoque_cod,
+        'estoque_disp':       estoque_disp,
+        'estoque_marca':      estoque_marca,
+        'estoque_marca_disp': estoque_marca_disp,
+        'custo_kits_cod':     custo_kits_cod,
+        'promomos_ct':        promomos_ct,
+        'promo_brinde':       promo_brinde,
+        'get_custo':          get_custo,
+        'de_fat':             pd.DataFrame(),
+    }
+
+
 # ── Carregar tabelas de custo ───────────────────────────────────────────────────
 def build_cost_tables(de_raw, ck_raw, kp_raw):
     de_raw = de_raw.copy()

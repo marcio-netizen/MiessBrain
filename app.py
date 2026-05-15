@@ -18,7 +18,7 @@ from datetime import datetime, timezone, timedelta
 import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from processador import (
-    build_cost_tables, process_vtex, calc_pl,
+    build_cost_tables, rebuild_cost_tables, process_vtex, calc_pl,
     calc_pedidos, calc_produtos, calc_marcas, calc_kits, calc_guia_compras,
 )
 
@@ -94,13 +94,11 @@ def load_cost_from_supabase():
     if sb is None:
         return None
     try:
-        from db import download_cost_file
-        de_b = download_cost_file(sb, 'de')
-        ck_b = download_cost_file(sb, 'ck')
-        kp_b = download_cost_file(sb, 'kp')
-        if de_b is None or ck_b is None or kp_b is None:
+        from db import download_cost_data
+        data = download_cost_data(sb)
+        if data is None:
             return None
-        return load_cost_tables(de_b, ck_b, kp_b)
+        return rebuild_cost_tables(data)
     except Exception:
         return None
 
@@ -231,15 +229,13 @@ with st.sidebar:
             de_b = de_file.read()
             ck_b = ck_file.read()
             kp_b = kp_file.read()
+            cost_tables = load_cost_tables(de_b, ck_b, kp_b)
             sb = get_supabase()
             if sb is not None:
-                from db import upload_cost_file
+                from db import upload_cost_data
                 with st.spinner('Salvando custos no servidor…'):
-                    upload_cost_file(sb, 'de', de_b)
-                    upload_cost_file(sb, 'ck', ck_b)
-                    upload_cost_file(sb, 'kp', kp_b)
-            cost_tables = load_cost_tables(de_b, ck_b, kp_b)
-            st.cache_data.clear()
+                    upload_cost_data(sb, cost_tables)
+            st.cache_resource.clear()
             st.success('✅ Custos salvos! Não precisará enviar novamente.')
 
     if st.button('🔄 Recarregar dados'):
