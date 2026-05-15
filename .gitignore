@@ -1,0 +1,14 @@
+# Credenciais — NUNCA versionar
+.streamlit/secrets.toml
+
+# Cache local
+cache/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Outputs Excel
+../outputs/
