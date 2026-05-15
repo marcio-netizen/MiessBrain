@@ -265,7 +265,8 @@ def process_vtex(dv_raw, cost_tables):
     dv = dv[~dv['Status'].str.contains('Cancelado|cancel', case=False, na=False)].copy()
 
     dv['Creation Date'] = dv['Creation Date'].str.strip()
-    dv['dt_criacao']    = pd.to_datetime(dv['Creation Date'], errors='coerce', utc=True)
+    dv['dt_criacao']    = pd.to_datetime(dv['Creation Date'], errors='coerce', utc=True,
+                                          format='mixed')
     dv['dia']           = dv['dt_criacao'].dt.day.fillna(0).astype(int)
     dv['data_criacao']  = dv['dt_criacao'].dt.strftime('%Y-%m-%d')
 

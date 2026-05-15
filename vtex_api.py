@@ -59,7 +59,13 @@ def _get_order_detail(store_name, app_key, app_token, order_id):
 def _flatten_order(o):
     """Achata um pedido detalhado em linhas SKU (uma por item)."""
     rows = []
-    created_at = o.get('creationDate', '')
+    raw_dt = o.get('creationDate', '')
+    try:
+        from datetime import timezone as _tz
+        import datetime as _dt
+        created_at = _dt.datetime.fromisoformat(raw_dt.replace('Z', '+00:00')).astimezone(_tz.utc).strftime('%Y-%m-%d %H:%M:%SZ')
+    except Exception:
+        created_at = raw_dt
     status     = o.get('status', '')
     order_id   = o.get('orderId', '')
     total_value = o.get('value', 0) / 100
