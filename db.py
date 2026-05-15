@@ -34,3 +34,26 @@ def download_parquet(client) -> pd.DataFrame:
     """Baixa parquet do Supabase Storage e retorna DataFrame."""
     data = client.storage.from_(BUCKET).download(OBJ_KEY)
     return pd.read_parquet(io.BytesIO(data))
+
+
+# ── Arquivos de custo ────────────────────────────────────────────────────────────
+_COST_KEYS = {'de': 'cost/de.bin', 'ck': 'cost/ck.bin', 'kp': 'cost/kp.bin'}
+
+def upload_cost_file(client, name: str, data: bytes):
+    """Salva um arquivo de custo no Supabase Storage (de, ck ou kp)."""
+    key = _COST_KEYS[name]
+    try:
+        client.storage.from_(BUCKET).remove([key])
+    except Exception:
+        pass
+    client.storage.from_(BUCKET).upload(
+        key, data,
+        file_options={'content-type': 'application/octet-stream', 'upsert': 'true'},
+    )
+
+def download_cost_file(client, name: str):
+    """Baixa bytes de um arquivo de custo (de, ck ou kp). Retorna None se não existir."""
+    try:
+        return client.storage.from_(BUCKET).download(_COST_KEYS[name])
+    except Exception:
+        return None

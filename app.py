@@ -88,6 +88,23 @@ def get_supabase():
     except Exception:
         return None
 
+@st.cache_data(ttl=3600, show_spinner='Carregando tabelas de custo do servidor…')
+def load_cost_from_supabase():
+    sb = get_supabase()
+    if sb is None:
+        return None
+    try:
+        from db import download_cost_file
+        de_b = download_cost_file(sb, 'de')
+        ck_b = download_cost_file(sb, 'ck')
+        kp_b = download_cost_file(sb, 'kp')
+        if de_b is None or ck_b is None or kp_b is None:
+            return None
+        return load_cost_tables(de_b, ck_b, kp_b)
+    except Exception:
+        return None
+
+
 @st.cache_data(ttl=300, show_spinner='Baixando dados do servidor…')
 def load_from_supabase():
     sb = get_supabase()
@@ -196,15 +213,34 @@ with st.sidebar:
     st.divider()
 
     # ── Arquivos de custo ───────────────────────────────────────────────────────
-    st.subheader('💰 Arquivos de custo')
-    de_file = st.file_uploader('custo total estoque.xls', type=['csv','xls','xlsx'], key='de')
-    ck_file = st.file_uploader('custo kits.csv',          type=['csv'],             key='ck')
-    kp_file = st.file_uploader('kits promomos.xlsx',      type=['xlsx'],            key='kp')
+    cost_tables = load_cost_from_supabase()
 
-    cost_tables = None
-    if de_file and ck_file and kp_file:
-        cost_tables = load_cost_tables(de_file.read(), ck_file.read(), kp_file.read())
-        st.success('✅ Custos carregados')
+    if cost_tables is not None:
+        st.success('✅ Custos carregados automaticamente')
+        expander_label = '🔁 Atualizar arquivos de custo'
+    else:
+        st.warning('⚠️ Faça upload dos arquivos de custo')
+        expander_label = '💰 Carregar arquivos de custo'
+
+    with st.expander(expander_label, expanded=(cost_tables is None)):
+        de_file = st.file_uploader('custo total estoque.xls', type=['csv','xls','xlsx'], key='de')
+        ck_file = st.file_uploader('custo kits.csv',          type=['csv'],             key='ck')
+        kp_file = st.file_uploader('kits promomos.xlsx',      type=['xlsx'],            key='kp')
+
+        if de_file and ck_file and kp_file:
+            de_b = de_file.read()
+            ck_b = ck_file.read()
+            kp_b = kp_file.read()
+            sb = get_supabase()
+            if sb is not None:
+                from db import upload_cost_file
+                with st.spinner('Salvando custos no servidor…'):
+                    upload_cost_file(sb, 'de', de_b)
+                    upload_cost_file(sb, 'ck', ck_b)
+                    upload_cost_file(sb, 'kp', kp_b)
+            cost_tables = load_cost_tables(de_b, ck_b, kp_b)
+            st.cache_data.clear()
+            st.success('✅ Custos salvos! Não precisará enviar novamente.')
 
     if st.button('🔄 Recarregar dados'):
         st.cache_data.clear()
@@ -259,7 +295,7 @@ if vtex_df_raw is None:
     st.stop()
 
 if cost_tables is None:
-    st.warning('Faça upload dos 3 arquivos de custo na sidebar para ver os resultados.')
+    st.info('Faça upload dos 3 arquivos de custo na barra lateral para ver os resultados completos.')
     st.stop()
 
 
