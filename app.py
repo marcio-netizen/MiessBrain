@@ -88,7 +88,7 @@ def get_supabase():
     except Exception:
         return None
 
-@st.cache_data(ttl=3600, show_spinner='Carregando tabelas de custo do servidor…')
+@st.cache_resource(show_spinner='Carregando tabelas de custo do servidor…')
 def load_cost_from_supabase():
     sb = get_supabase()
     if sb is None:
