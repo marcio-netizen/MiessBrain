@@ -264,11 +264,14 @@ def process_vtex(dv_raw, cost_tables):
     dv['Status'] = dv['Status'].str.strip()
     dv = dv[~dv['Status'].str.contains('Cancelado|cancel', case=False, na=False)].copy()
 
+    from zoneinfo import ZoneInfo
+    TZ_BR = ZoneInfo('America/Sao_Paulo')
     dv['Creation Date'] = dv['Creation Date'].str.strip()
     dv['dt_criacao']    = pd.to_datetime(dv['Creation Date'], errors='coerce', utc=True,
                                           format='mixed')
-    dv['dia']           = dv['dt_criacao'].dt.day.fillna(0).astype(int)
-    dv['data_criacao']  = dv['dt_criacao'].dt.strftime('%Y-%m-%d')
+    dt_br               = dv['dt_criacao'].dt.tz_convert(TZ_BR)
+    dv['dia']           = dt_br.dt.day.fillna(0).astype(int)
+    dv['data_criacao']  = dt_br.dt.strftime('%Y-%m-%d')
 
     num_cols = ['Payment Value', 'SKU Value', 'SKU Selling Price', 'SKU Total Price',
                 'Shipping Value', 'Total Value', 'Discounts Totals', 'Quantity_SKU',

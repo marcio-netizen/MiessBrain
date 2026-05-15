@@ -159,9 +159,11 @@ def read_vtex_csv(file_bytes):
 # ── Busca API (só pedidos de hoje) ───────────────────────────────────────────────
 def fetch_hoje(store_name, app_key, app_token):
     from vtex_api import fetch_orders
-    now     = datetime.now(timezone.utc)
-    d_from  = now.replace(hour=0, minute=0, second=0, microsecond=0).strftime('%Y-%m-%dT%H:%M:%SZ')
-    d_to    = now.strftime('%Y-%m-%dT%H:%M:%SZ')
+    from zoneinfo import ZoneInfo
+    TZ_BR  = ZoneInfo('America/Sao_Paulo')
+    now_br = datetime.now(TZ_BR)
+    d_from = now_br.replace(hour=0, minute=0, second=0, microsecond=0).astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+    d_to   = now_br.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
 
     cached = _load_cache('hoje', max_age_hours=1)
     if cached is not None:
