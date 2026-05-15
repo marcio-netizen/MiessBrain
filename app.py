@@ -36,19 +36,22 @@ def check_password():
     if st.session_state.get('auth_ok'):
         return True
     st.markdown(
-        f"<h2 style='color:#C13535; text-align:center; margin-top:80px'>💄 CFO Miess</h2>",
+        "<h2 style='color:#C13535; text-align:center; margin-top:80px'>💄 CFO Miess</h2>",
         unsafe_allow_html=True,
     )
     col = st.columns([1, 2, 1])[1]
-    pwd = col.text_input('Senha de acesso', type='password', label_visibility='collapsed',
+    pwd = col.text_input('Senha', type='password', label_visibility='collapsed',
                          placeholder='Senha de acesso')
     if col.button('Entrar', use_container_width=True, type='primary'):
-        senha_correta = st.secrets.get('dashboard_password', '')
-        if senha_correta and hmac.compare_digest(pwd, senha_correta):
+        try:
+            senha_correta = str(st.secrets['dashboard_password']).strip()
+        except Exception:
+            senha_correta = ''
+        if pwd.strip() == senha_correta and senha_correta:
             st.session_state['auth_ok'] = True
             st.rerun()
         else:
-            col.error('Senha incorreta')
+            col.error(f'Senha incorreta')
     return False
 
 if not check_password():
