@@ -369,7 +369,7 @@ with tab_pl:
             ('Lucro Bruto',      brl(pl['lucro_bruto']), pct(pl['margem'])),
         ]
         st.dataframe(pd.DataFrame(rows_pl, columns=['Indicador', 'Valor', '%']),
-                     hide_index=True, use_container_width=True)
+                     hide_index=True, width='stretch')
 
     with c2:
         fig = go.Figure(go.Waterfall(
@@ -384,7 +384,7 @@ with tab_pl:
             totals={'marker': {'color': '#2ecc71'}},
         ))
         fig.update_layout(height=320, margin=dict(t=10, b=10), showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     if 'dia' in dv_pl.columns:
         st.subheader('Vendas por dia')
@@ -394,7 +394,7 @@ with tab_pl:
                       color_discrete_map={'rl': CORAL, 'lucro': '#2ecc71'}, barmode='group',
                       labels={'value': 'R$', 'dia': 'Dia', 'variable': ''})
         fig2.update_layout(height=280, margin=dict(t=5, b=5))
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, width='stretch')
 
 
 # ── Produtos ──────────────────────────────────────────────────────────────────────
@@ -416,7 +416,7 @@ with tab_prod:
                          'marca':'Marca','qtd':'Qtd','rl':'Rec.Líq.','lucro':'Lucro',
                          'margem':'Margem','acao':'Ação','estoque':'Est.Disp.'})
         .style.format({'Rec.Líq.':'R$ {:,.2f}','Lucro':'R$ {:,.2f}','Margem':'{:.1%}'}),
-        hide_index=True, use_container_width=True,
+        hide_index=True, width='stretch',
     )
 
     st.subheader('Margem × Receita')
@@ -425,7 +425,7 @@ with tab_prod:
                       color_discrete_map={'✅ Replicar':'#2ecc71','📊 Manter':'#f39c12','⚠️ Revisar':CORAL},
                       labels={'rl':'Rec. Líquida (R$)','margem':'Margem'})
     fig3.update_layout(height=380, margin=dict(t=5))
-    st.plotly_chart(fig3, use_container_width=True)
+    st.plotly_chart(fig3, width='stretch')
 
 
 # ── Marcas ────────────────────────────────────────────────────────────────────────
@@ -434,14 +434,14 @@ with tab_marcas:
                   color_continuous_scale=['#aaa', CORAL, '#2ecc71'],
                   labels={'rl':'Rec. Líquida (R$)','marca':'Marca','margem':'Margem'})
     fig4.update_layout(height=320, margin=dict(t=5))
-    st.plotly_chart(fig4, use_container_width=True)
+    st.plotly_chart(fig4, width='stretch')
 
     st.dataframe(
         marcas[['marca','qtd','rl','lucro','margem','acao','estoque']]
         .rename(columns={'marca':'Marca','qtd':'Qtd','rl':'Rec.Líq.',
                          'lucro':'Lucro','margem':'Margem','acao':'Ação','estoque':'Est.Disp.'})
         .style.format({'Rec.Líq.':'R$ {:,.2f}','Lucro':'R$ {:,.2f}','Margem':'{:.1%}'}),
-        hide_index=True, use_container_width=True,
+        hide_index=True, width='stretch',
     )
 
 
@@ -454,14 +454,14 @@ with tab_kits:
             .rename(columns={'ref_code':'Código','SKU Name':'Kit','qtd':'Qtd','rl':'Rec.Líq.',
                              'lucro':'Lucro','margem':'Margem','acao':'Ação','estoque':'Est.Disp.'})
             .style.format({'Rec.Líq.':'R$ {:,.2f}','Lucro':'R$ {:,.2f}','Margem':'{:.1%}'}),
-            hide_index=True, use_container_width=True,
+            hide_index=True, width='stretch',
         )
     with c2:
         fig5 = px.bar(kits.head(20), x='rl', y='SKU Name', orientation='h',
                       color='margem', color_continuous_scale=['#aaa', CORAL, '#2ecc71'],
                       labels={'rl':'Rec. Líquida (R$)','SKU Name':''})
         fig5.update_layout(height=480, margin=dict(t=5, l=5))
-        st.plotly_chart(fig5, use_container_width=True)
+        st.plotly_chart(fig5, width='stretch')
 
 
 # ── Marketing ─────────────────────────────────────────────────────────────────────
@@ -479,14 +479,14 @@ with tab_mkt:
         fig6 = px.pie(utm_agg, names='utm_source_norm', values='rl',
                       color_discrete_sequence=px.colors.qualitative.Set2, title='% Receita por canal')
         fig6.update_layout(height=320)
-        st.plotly_chart(fig6, use_container_width=True)
+        st.plotly_chart(fig6, width='stretch')
     with c2:
         st.dataframe(
             utm_agg.rename(columns={'utm_source_norm':'Canal','rl':'Rec.Líq.','pedidos':'Pedidos',
                                     'lucro':'Lucro','margem':'Margem','ticket':'Ticket Médio'})
             .style.format({'Rec.Líq.':'R$ {:,.2f}','Lucro':'R$ {:,.2f}',
                            'Margem':'{:.1%}','Ticket Médio':'R$ {:,.2f}'}),
-            hide_index=True, use_container_width=True,
+            hide_index=True, width='stretch',
         )
 
     st.subheader('Cupons')
@@ -496,7 +496,7 @@ with tab_mkt:
     fig7 = px.bar(coupon_agg, x='coupon', y='rl', text_auto='.2s',
                   labels={'coupon':'Cupom','rl':'Rec. Líquida (R$)'})
     fig7.update_layout(height=280, margin=dict(t=5))
-    st.plotly_chart(fig7, use_container_width=True)
+    st.plotly_chart(fig7, width='stretch')
 
 
 # ── Guia de Compras ───────────────────────────────────────────────────────────────
@@ -514,7 +514,7 @@ with tab_guia:
                          'disp':'Disp.','sugestao':'Sugestão Compra','prioridade':'Prioridade'})
         .style.format({'Giro/Dia':'{:.1f}','Proj.30d':'{:.0f}',
                        'Disp.':'{:.0f}','Sugestão Compra':'{:.0f}'}),
-        hide_index=True, use_container_width=True,
+        hide_index=True, width='stretch',
     )
 
     urgentes = int((guia['prioridade'] == '🔴 URGENTE').sum())
@@ -534,7 +534,7 @@ with tab_pedidos:
                          'canal_pgto':'Pagamento','utm_source':'Canal','coupon':'Cupom',
                          'n_itens':'Itens','rl_pedido':'Rec.Líq.','lucro_bruto':'Lucro','margem':'Margem'})
         .style.format({'Rec.Líq.':'R$ {:,.2f}','Lucro':'R$ {:,.2f}','Margem':'{:.1%}'}),
-        hide_index=True, use_container_width=True,
+        hide_index=True, width='stretch',
     )
     c1, c2 = st.columns(2)
     with c1:
@@ -543,11 +543,11 @@ with tab_pedidos:
         ).reset_index().sort_values('rl', ascending=False)
         fig8 = px.bar(pgto, x='canal_pgto', y='rl', labels={'canal_pgto':'Forma pgto','rl':'R$'})
         fig8.update_layout(height=280, margin=dict(t=5))
-        st.plotly_chart(fig8, use_container_width=True)
+        st.plotly_chart(fig8, width='stretch')
     with c2:
         uf_agg = pedidos.groupby('uf').agg(
             pedidos=('Order','count'), rl=('rl_pedido','sum')
         ).reset_index().sort_values('rl', ascending=False).head(10)
         fig9 = px.bar(uf_agg, x='uf', y='rl', labels={'uf':'UF','rl':'R$'})
         fig9.update_layout(height=280, margin=dict(t=5))
-        st.plotly_chart(fig9, use_container_width=True)
+        st.plotly_chart(fig9, width='stretch')
